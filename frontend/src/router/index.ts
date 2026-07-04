@@ -22,6 +22,30 @@ const router = createRouter({
       component: () => import('@/views/QrGeneratorView.vue'),
       meta: { title: 'QR Generator' },
     },
+    {
+      path: '/tools/pdf',
+      name: 'pdf-toolkit',
+      component: () => import('@/views/PdfToolsView.vue'),
+      meta: { title: 'PDF Toolkit' },
+    },
+    {
+      path: '/tools/excel',
+      name: 'excel-toolkit',
+      component: () => import('@/views/ExcelToolsView.vue'),
+      meta: { title: 'Excel Toolkit' },
+    },
+    {
+      path: '/tools/markdown',
+      name: 'markdown-toolkit',
+      component: () => import('@/views/MarkdownToolsView.vue'),
+      meta: { title: 'Markdown Toolkit' },
+    },
+    {
+      path: '/tools/file-security',
+      name: 'file-security',
+      component: () => import('@/views/FileSecurityView.vue'),
+      meta: { title: 'File Encryption' },
+    },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

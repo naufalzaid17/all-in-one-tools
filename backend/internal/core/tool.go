@@ -14,6 +14,8 @@ type Category string
 const (
 	CategoryFormatter Category = "Formatter"
 	CategoryGenerator Category = "Generators"
+	CategoryDocument  Category = "Document & AI Tools"
+	CategorySecurity  Category = "File Security"
 )
 
 // Tool is the contract every tool module must satisfy to be mounted

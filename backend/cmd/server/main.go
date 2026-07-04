@@ -14,7 +14,11 @@ import (
 
 	"github.com/naufalzaid17/all-in-one-tools/backend/internal/api"
 	"github.com/naufalzaid17/all-in-one-tools/backend/internal/core"
+	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/excel"
+	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/hashing"
 	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/jsonutils"
+	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/markdown"
+	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/pdf"
 	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/qrcode"
 	"github.com/naufalzaid17/all-in-one-tools/backend/internal/tools/security"
 	"github.com/naufalzaid17/all-in-one-tools/backend/public"
@@ -34,8 +38,12 @@ func main() {
 func run() error {
 	registry := core.NewRegistry()
 	registry.MustRegister(jsonutils.New())
-	registry.MustRegister(security.New())
+	registry.MustRegister(hashing.New())
 	registry.MustRegister(qrcode.New())
+	registry.MustRegister(pdf.New())
+	registry.MustRegister(excel.New())
+	registry.MustRegister(markdown.New())
+	registry.MustRegister(security.New())
 
 	addr := defaultAddr
 	if port := os.Getenv("PORT"); port != "" {

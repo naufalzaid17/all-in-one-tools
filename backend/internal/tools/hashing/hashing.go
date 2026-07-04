@@ -1,5 +1,5 @@
-// Package security implements the Hash Generator tool.
-package security
+// Package hashing implements the Hash Generator tool.
+package hashing
 
 import (
 	"crypto/md5" //nolint:gosec // MD5 is offered as a checksum utility, not for password storage.
