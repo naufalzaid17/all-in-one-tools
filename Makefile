@@ -1,21 +1,31 @@
 # All-in-One Tools — build automation.
 #
-# `make build` produces a single self-contained binary at bin/all-in-one-tools:
+# `make build` produces a single self-contained binary in bin/:
 #   1. builds the Vue frontend (frontend/dist)
 #   2. copies the build output into backend/public/dist (the go:embed root)
 #   3. compiles the Go server with the frontend embedded
+#
+# Recipes must run under both sh (unix) and cmd.exe (Windows), so they
+# are limited to "cd <dir> && <go|npm> ..." — anything more complex
+# (recursive copy, cleanup) lives in backend/scripts/xtask, a small
+# OS-agnostic Go helper.
 
 FRONTEND_DIR := frontend
 BACKEND_DIR  := backend
-EMBED_DIR    := $(BACKEND_DIR)/public/dist
 BIN_DIR      := bin
-BINARY       := $(BIN_DIR)/all-in-one-tools
+
+ifeq ($(OS),Windows_NT)
+BINEXT := .exe
+else
+BINEXT :=
+endif
+BINARY := $(BIN_DIR)/all-in-one-tools$(BINEXT)
 
 .PHONY: build frontend embed backend run dev-backend dev-frontend test clean
 
 ## build: full production build (frontend + embed + Go binary)
 build: frontend embed backend
-	@echo "✓ Built $(BINARY) — run it with: ./$(BINARY)"
+	@echo Done. Run the app with: $(BINARY)
 
 ## frontend: install dependencies and build the Vue app
 frontend:
@@ -23,18 +33,19 @@ frontend:
 
 ## embed: copy the frontend build output into the go:embed directory
 embed:
-	@mkdir -p $(EMBED_DIR)
-	@find $(EMBED_DIR) -mindepth 1 ! -name '.gitkeep' -delete
-	cp -R $(FRONTEND_DIR)/dist/. $(EMBED_DIR)/
+	cd $(BACKEND_DIR) && go run ./scripts/xtask embed-assets
 
 ## backend: compile the Go server (embeds whatever is in backend/public/dist)
 backend:
-	@mkdir -p $(BIN_DIR)
-	cd $(BACKEND_DIR) && go build -trimpath -ldflags="-s -w" -o ../$(BINARY) ./cmd/server
+	cd $(BACKEND_DIR) && go run ./scripts/xtask ensure-bin && go build -trimpath -ldflags="-s -w" -o ../$(BINARY) ./cmd/server
 
 ## run: build everything and start the server on :8080
 run: build
+ifeq ($(OS),Windows_NT)
+	$(subst /,\,$(BINARY))
+else
 	./$(BINARY)
+endif
 
 ## dev-backend: run the Go API with live code (no embedded frontend needed)
 dev-backend:
@@ -50,5 +61,4 @@ test:
 
 ## clean: remove build artifacts
 clean:
-	rm -rf $(BIN_DIR) $(FRONTEND_DIR)/dist
-	@find $(EMBED_DIR) -mindepth 1 ! -name '.gitkeep' -delete 2>/dev/null || true
+	cd $(BACKEND_DIR) && go run ./scripts/xtask clean
